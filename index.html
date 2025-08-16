@@ -3,36 +3,53 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Aplikasi Bacaan Pantas — Lengkap (Offline + Dashboard + Sheets)</title>
+  <title>Aplikasi Bacaan Pantas — Tema Kuning + Upload</title>
   <style>
-    :root{--bg:#fffacd;--panel:#13395b;--accent:#ffd34d;--text:#eef6ff;--muted:#b8d3f0;--line:#294b73}
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
-    header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(180deg,#14406d,#0f3359);border-bottom:2px solid #0b2846}
+    :root{
+      --bg:#fff7c2;        /* latar kuning lembut */
+      --panel:#fff0a3;     /* panel kuning lembut */
+      --accent:#ffd34d;    /* kuning emas (butang utama & garisan) */
+      --text:#2b2b2b;      /* teks gelap untuk kontras */
+      --muted:#6b5e00;     /* teks tolong/sekunder */
+      --line:#e6c95c;      /* sempadan keemasan */
+      --panel-strong:#ffea80; /* header/card gradient */
+      --panel-soft:#fff6cc;   /* card gradient bawah */
+      --chip:#fff3a1;         /* latar chip/pill */
+    }
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px;
+      padding:12px 16px;background:linear-gradient(180deg,var(--panel-strong),var(--accent));
+      border-bottom:2px solid var(--line)}
     .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:40px;height:40px;border-radius:10px;background:var(--accent);color:#15253c;display:grid;place-items:center;font-weight:900}
+    .logo{width:40px;height:40px;border-radius:10px;background:var(--accent);color:#3b2f00;
+      display:grid;place-items:center;font-weight:900}
     h1{margin:0;font-size:18px}
     main{max-width:1200px;margin:18px auto;padding:0 16px}
     .grid{display:grid;grid-template-columns:1fr;gap:16px}
     @media(min-width:980px){.grid{grid-template-columns:380px 1fr}}
-    .card{background:linear-gradient(180deg,#153f6b,#12355a);border:1px solid #0b2846;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:16px}
+    .card{background:linear-gradient(180deg,var(--panel-strong),var(--panel-soft));
+      border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:16px}
     .card h2{margin:0 0 10px;font-size:18px}
-    label{display:block;margin:10px 0 6px;font-weight:600}
-    input,select,button,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid #244a73;background:#0f2f52;color:var(--text)}
-    input::placeholder,textarea::placeholder{color:#9fb9d7}
-    .btn{cursor:pointer;font-weight:700;background:var(--accent);color:#14253d;border:0}
-    .btn.secondary{background:#0f2f52;color:var(--text);border:1px solid #244a73}
+    label{display:block;margin:10px 0 6px;font-weight:600;color:#3b2f00}
+    input,select,button,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);
+      background:#fffdf0;color:var(--text)}
+    input::placeholder,textarea::placeholder{color:#8c7c00}
+    .btn{cursor:pointer;font-weight:700;background:var(--accent);color:#3b2f00;border:0}
+    .btn.secondary{background:#fff7bf;color:#3b2f00;border:1px solid var(--line)}
     .btnrow{display:flex;gap:10px;flex-wrap:wrap}
     .muted{color:var(--muted);font-size:12px}
-    .reading-box{min-height:180px;background:#0f2f52;border:1px dashed #2b5588;border-radius:12px;padding:14px;line-height:1.7}
+    .reading-box{min-height:180px;background:#fffbe6;border:1px dashed var(--line);
+      border-radius:12px;padding:14px;line-height:1.7}
     .stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
-    .pill{padding:8px 12px;border-radius:999px;background:#0f2f52;border:1px solid #244a73;font-weight:700}
+    .pill{padding:8px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--line);
+      font-weight:700;color:#3b2f00}
     table{width:100%;border-collapse:collapse}
     th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left}
     .right{text-align:right}
-    canvas{background:#0f2f52;border-radius:12px;padding:8px}
+    canvas{background:#fffbe6;border-radius:12px;padding:8px}
     .hidden{display:none}
 
-    /* Cetak */
     @media print{
       header,.no-print{display:none!important}
       body{background:white;color:black}
@@ -48,7 +65,7 @@
       <div class="logo">RP</div>
       <div>
         <h1>Aplikasi Bacaan Pantas</h1>
-        <div class="muted">Lengkap · Offline · Dashboard · Google Sheets</div>
+        <div class="muted">Tema Kuning · Offline · Dashboard · Google Sheets · Muat Naik Petikan</div>
       </div>
     </div>
     <div class="btnrow no-print">
@@ -81,14 +98,28 @@
           <input id="miscue" type="number" min="0" step="1" value="0"/>
           <div class="muted">CWPM = (Perkataan − miscues) ÷ masa (minit)</div>
         </div>
+
         <label>Pemilihan petikan</label>
         <select id="passageSelect"></select>
-        <div class="btnrow">
+        <div class="btnrow" style="margin-top:8px">
           <button id="btnAddPassage" class="btn secondary">Tambah Petikan (teks sahaja)</button>
         </div>
-        <label>URL Webhook Google Sheets (Apps Script)</label>
+
+        <details style="margin-top:12px">
+          <summary><b>Muat Naik Petikan (TXT / PDF / DOCX / PPTX / PNG-JPG)</b></summary>
+          <div class="btnrow" style="margin-top:10px">
+            <input id="fileInput" type="file" multiple
+              accept=".txt,.pdf,.docx,.pptx,.png,.jpg,.jpeg,.webp,.bmp" />
+            <button id="btnImportFiles" class="btn">Proses & Tambah</button>
+          </div>
+          <div class="muted" id="libStatus">Mod: TXT sedia. PDF/DOCX/PPTX/IMEJ akan memuat modul bila perlu.</div>
+          <pre id="importLog" class="reading-box" style="white-space:pre-wrap;margin-top:8px;min-height:100px"></pre>
+        </details>
+
+        <label style="margin-top:12px">URL Webhook Google Sheets (Apps Script)</label>
         <input id="sheetsWebhook" placeholder="cth: https://script.google.com/macros/s/AKfycbx.../exec" />
         <div class="muted">Opsyenal. Butang “Hantar ke Sheets” akan guna URL ini.</div>
+
         <div class="btnrow" style="margin-top:10px">
           <button id="startBtn" class="btn">Mula</button>
           <button id="finishBtn" class="btn secondary" disabled>Selesai</button>
@@ -136,18 +167,18 @@
   </main>
 
   <script>
-  // ====== PETIKAN ASAS (boleh tambah) ======
+  // ====== DATA PETIKAN ASAS ======
   const PASSAGES = [
     {
       id: 'membaca-di-perpustakaan',
       title: 'Membaca di Pusat Sumber',
       text: `Setiap pagi Rabu, murid-murid Tahun Empat berkunjung ke Pusat Sumber Sekolah. Mereka duduk mengikut kumpulan dan memilih bahan bacaan mengikut minat masing-masing. Ada yang gemar kisah sains, ada pula yang memilih cerita rakyat Melayu. Guru Pusat Sumber mengingatkan supaya membaca dengan tekun dan mencatat kosa kata baharu dalam buku kecil. Selepas tamat sesi, setiap murid berkongsi ringkasan ringkas tentang apa yang difahami. Aktiviti ini membantu mereka melatih tumpuan, memperkaya perbendaharaan kata, dan membina keyakinan untuk bercakap di hadapan rakan.`,
       quiz: [
-        {q: 'Pada hari apa murid Tahun Empat ke Pusat Sumber?', a: ['Isnin','Rabu','Jumaat','Ahad'], correct: 1},
-        {q: 'Apakah dua jenis bahan bacaan yang disebut?', a: ['Sejarah & geografi','Sains & cerita rakyat','Puisi & drama','Laporan & berita'], correct: 1},
-        {q: 'Apakah yang diminta guru dicatat oleh murid?', a: ['Nama pengarang','Bilangan halaman','Kosa kata baharu','Tarikh pinjaman'], correct: 2},
-        {q: 'Apakah aktiviti selepas membaca?', a: ['Menulis karangan panjang','Membuat lakaran','Berkongsi ringkasan','Mencari buku baharu'], correct: 2},
-        {q: 'Apakah manfaat utama aktiviti ini?', a: ['Menghafal tajuk buku','Meningkatkan keyakinan & perbendaharaan kata','Menambah masa rehat','Mengurangkan kerja rumah'], correct: 1}
+        {q:'Pada hari apa murid Tahun Empat ke Pusat Sumber?', a:['Isnin','Rabu','Jumaat','Ahad'], correct:1},
+        {q:'Apakah dua jenis bahan bacaan yang disebut?', a:['Sejarah & geografi','Sains & cerita rakyat','Puisi & drama','Laporan & berita'], correct:1},
+        {q:'Apakah yang diminta guru dicatat oleh murid?', a:['Nama pengarang','Bilangan halaman','Kosa kata baharu','Tarikh pinjaman'], correct:2},
+        {q:'Apakah aktiviti selepas membaca?', a:['Menulis karangan panjang','Membuat lakaran','Berkongsi ringkasan','Mencari buku baharu'], correct:2},
+        {q:'Apakah manfaat utama aktiviti ini?', a:['Menghafal tajuk buku','Meningkatkan keyakinan & perbendaharaan kata','Menambah masa rehat','Mengurangkan kerja rumah'], correct:1}
       ]
     },
     {
@@ -155,11 +186,11 @@
       title: 'Jaga Kebersihan Sekolah',
       text: `Kebersihan sekolah tanggungjawab bersama. Setiap kelas mempunyai jadual bertugas yang disemak pada setiap pagi. Murid-murid menyapu lantai, mengelap meja, dan memastikan tong kitar semula digunakan dengan betul. Apabila kawasan pembelajaran bersih, minda menjadi lebih tenang dan pembelajaran berlangsung dengan selesa. Guru pula memberi pujian kepada kelas yang paling kemas sebagai motivasi. Amalan ini membentuk disiplin, kerjasama, dan rasa sayang akan sekolah.`,
       quiz: [
-        {q: 'Bilakah jadual bertugas disemak?', a: ['Setiap petang','Setiap pagi','Setiap minggu','Setiap bulan'], correct: 1},
-        {q: 'Apakah tugas murid?', a: ['Mengecat dinding','Membeli tong sampah','Menyapu & mengelap','Menanam pokok besar'], correct: 2},
-        {q: 'Mengapa kebersihan penting?', a: ['Menambah kerja rumah','Menenangkan minda & selesa','Mengurangkan waktu rehat','Meningkatkan bising'], correct: 1},
-        {q: 'Apakah ganjaran daripada guru?', a: ['Markah bonus','Pujian','Cuti tambahan','Hadiah wang'], correct: 1},
-        {q: 'Apakah nilai yang dibentuk?', a: ['Persaingan','Disiplin & kerjasama','Bergantung pada orang lain','Tidak peduli'], correct: 1}
+        {q:'Bilakah jadual bertugas disemak?', a:['Setiap petang','Setiap pagi','Setiap minggu','Setiap bulan'], correct:1},
+        {q:'Apakah tugas murid?', a:['Mengecat dinding','Membeli tong sampah','Menyapu & mengelap','Menanam pokok besar'], correct:2},
+        {q:'Mengapa kebersihan penting?', a:['Menambah kerja rumah','Menenangkan minda & selesa','Mengurangkan waktu rehat','Meningkatkan bising'], correct:1},
+        {q:'Apakah ganjaran daripada guru?', a:['Markah bonus','Pujian','Cuti tambahan','Hadiah wang'], correct:1},
+        {q:'Apakah nilai yang dibentuk?', a:['Persaingan','Disiplin & kerjasama','Bergantung pada orang lain','Tidak peduli'], correct:1}
       ]
     },
     {
@@ -167,11 +198,11 @@
       title: 'Keselamatan Jalan Raya',
       text: `Apabila melintas jalan, murid perlu berhenti di tepi, melihat kiri dan kanan, kemudian melintas apabila selamat. Gunakan lintasan zebra atau jejantas jika ada. Penunggang basikal hendaklah memakai topi keledar dan memastikan brek berfungsi. Ibu bapa diingatkan untuk menurunkan anak di kawasan yang ditetapkan supaya trafik sekolah kekal teratur. Apabila semua mematuhi peraturan, kemalangan dapat dielakkan dan perjalanan ke sekolah menjadi lebih selamat.`,
       quiz: [
-        {q: 'Apakah langkah sebelum melintas?', a: ['Terus berlari','Melihat kiri dan kanan','Menutup mata','Mengangkat tangan sahaja'], correct: 1},
-        {q: 'Apakah kemudahan untuk melintas?', a: ['Lintasan zebra/jejantas','Laluan basikal','Padang sekolah','Tempat letak kereta'], correct: 0},
-        {q: 'Apa perlu dipakai penunggang basikal?', a: ['Sarung tangan','Topi keledar','Kasut sukan','Jaket hujan'], correct: 1},
-        {q: 'Mengapa ibu bapa perlu menurunkan anak di tempat ditetapkan?', a: ['Supaya cepat pulang','Supaya trafik teratur','Supaya guru senang','Supaya parkir penuh'], correct: 1},
-        {q: 'Apakah manfaat mematuhi peraturan?', a: ['Masa rehat bertambah','Elak kemalangan','Dapat markah bonus','Bunyi bising berkurang'], correct: 1}
+        {q:'Apakah langkah sebelum melintas?', a:['Terus berlari','Melihat kiri dan kanan','Menutup mata','Mengangkat tangan sahaja'], correct:1},
+        {q:'Apakah kemudahan untuk melintas?', a:['Lintasan zebra/jejantas','Laluan basikal','Padang sekolah','Tempat letak kereta'], correct:0},
+        {q:'Apa perlu dipakai penunggang basikal?', a:['Sarung tangan','Topi keledar','Kasut sukan','Jaket hujan'], correct:1},
+        {q:'Mengapa ibu bapa perlu menurunkan anak di tempat ditetapkan?', a:['Supaya cepat pulang','Supaya trafik teratur','Supaya guru senang','Supaya parkir penuh'], correct:1},
+        {q:'Apakah manfaat mematuhi peraturan?', a:['Masa rehat bertambah','Elak kemalangan','Dapat markah bonus','Bunyi bising berkurang'], correct:1}
       ]
     }
   ];
@@ -181,9 +212,11 @@
   const fmtTime = (s)=>{ const m = Math.floor(s/60).toString().padStart(2,'0'); const r = Math.floor(s%60).toString().padStart(2,'0'); return `${m}:${r}`; };
   const countWords = (t)=> t.trim().split(/\s+/).filter(Boolean).length;
   const nowMY = ()=> new Date().toLocaleString('ms-MY',{timeZone:'Asia/Kuala_Lumpur'});
+  const log = (msg)=>{ const el=$('importLog'); el.textContent += msg + '\n'; el.scrollTop = el.scrollHeight; };
+  const dynLoadScript = (src)=> new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>rej(new Error('Gagal muat: '+src)); document.head.appendChild(s); });
 
   // ====== STATE ======
-  let timer=null, startTime=0, elapsed=0; // seconds
+  let timer=null, startTime=0, elapsed=0;
   let currentPassage = null; let compScore = null;
 
   // ====== INIT ======
@@ -203,7 +236,15 @@
     $('wordCount').textContent = words; $('quizBox').innerHTML=''; compScore=null; $('compScore').textContent='-'; $('status').textContent='Sedia';
   }
 
-  function start(){ if(timer) return; $('status').textContent='Sedang membaca…'; startTime = Date.now(); timer=setInterval(()=>{ elapsed=(Date.now()-startTime)/1000; $('time').textContent=fmtTime(elapsed); const w=countWords(currentPassage.text); const wpm=Math.round((w/(elapsed/60))); $('wpm').textContent=isFinite(wpm)?wpm:0; if($('mode').value==='lantang'){ const misc = Number($('miscue').value||0); const cwpm = Math.max(0, Math.round(((w - misc)/(elapsed/60)))); $('cwpm').textContent = isFinite(cwpm)?cwpm:0; } },200); $('finishBtn').disabled=false; }
+  function start(){ if(timer) return; $('status').textContent='Sedang membaca…'; startTime = Date.now();
+    timer=setInterval(()=>{ elapsed=(Date.now()-startTime)/1000; $('time').textContent=fmtTime(elapsed);
+      const w=countWords(currentPassage.text); const wpm=Math.round((w/(elapsed/60)));
+      $('wpm').textContent=isFinite(wpm)?wpm:0;
+      if($('mode').value==='lantang'){ const misc = Number($('miscue').value||0);
+        const cwpm = Math.max(0, Math.round(((w - misc)/(elapsed/60)))); $('cwpm').textContent = isFinite(cwpm)?cwpm:0; }
+    },200);
+    $('finishBtn').disabled=false;
+  }
   function finish(){ if(!timer) return; clearInterval(timer); timer=null; $('status').textContent='Lengkap bacaan — jawab kefahaman'; renderQuiz(); }
   function reset(){ if(timer){clearInterval(timer); timer=null} elapsed=0; $('time').textContent='00:00'; $('wpm').textContent=0; $('cwpm').textContent=0; compScore=null; $('compScore').textContent='-'; $('status').textContent='Sedia'; $('finishBtn').disabled=true; $('quizBox').innerHTML=''; }
 
@@ -227,7 +268,6 @@
   function saveAfterQuiz(hadQuiz){
     const words=countWords(currentPassage.text); const wpm=Math.round((words/(elapsed/60)));
     const misc = $('mode').value==='lantang'? Number($('miscue').value||0):0; const cwpm = $('mode').value==='lantang'? Math.max(0, Math.round(((words - misc)/(elapsed/60)))) : null;
-    // Syarat simpan: jika ada kuiz → comp >= 60; jika tiada kuiz → simpan terus.
     if(!hadQuiz || (hadQuiz && compScore>=60)){
       const rec={ ts: nowMY(), name:$('studentName').value||'-tanpa nama-', class:$('studentClass').value||'-', mode:$('mode').value, passage: currentPassage.title, words, seconds: Math.round(elapsed), wpm, cwpm, comp: compScore ?? '-' };
       const arr=JSON.parse(localStorage.getItem('rp_records')||'[]'); arr.push(rec); localStorage.setItem('rp_records', JSON.stringify(arr));
@@ -252,7 +292,7 @@
   }
   function clearRecords(){ if(confirm('Padam semua rekod di peranti ini?')){ localStorage.removeItem('rp_records'); renderRecords(); renderDashboard([]); } }
 
-  // ====== DASHBOARD (lukisan manual canvas, offline) ======
+  // ====== DASHBOARD (warna kuning) ======
   function renderDashboard(arr){
     const count=arr.length; const avgWpm=count?Math.round(arr.reduce((s,x)=>s+x.wpm,0)/count):0; const avgComp=count?Math.round(arr.reduce((s,x)=>s+(Number(x.comp)||0),0)/count):0;
     $('avgWpm').textContent=avgWpm; $('avgComp').textContent=(count?avgComp:0)+'%'; $('countSessions').textContent=count;
@@ -261,22 +301,23 @@
   }
   function drawLine(id, labels, data, label){
     const c=$(id); const ctx=c.getContext('2d'); const W=c.width=c.clientWidth; const H=c.height; ctx.clearRect(0,0,W,H);
-    // bingkai
-    ctx.strokeStyle = '#294b73'; ctx.lineWidth=1; ctx.strokeRect(40,10,W-50,H-30);
+    ctx.strokeStyle = '#b08900'; ctx.lineWidth=1; ctx.strokeRect(40,10,W-50,H-30);   // bingkai emas gelap
     if(!data.length) return; const max=Math.max(10,...data); const x0=40, y0=H-20, x1=W-10, y1=10; const stepX=(x1-x0)/Math.max(1,data.length-1); const scaleY=(y0-y1)/max;
-    ctx.beginPath(); ctx.moveTo(x0, y0 - data[0]*scaleY); for(let i=1;i<data.length;i++){ ctx.lineTo(x0+stepX*i, y0 - data[i]*scaleY); } ctx.strokeStyle='#ffd34d'; ctx.lineWidth=2; ctx.stroke();
-    ctx.fillStyle='#ffd34d'; data.forEach((v,i)=>{ctx.beginPath();ctx.arc(x0+stepX*i, y0 - v*scaleY, 3, 0, Math.PI*2);ctx.fill()});
-    ctx.fillStyle='#b8d3f0'; ctx.font='12px system-ui'; ctx.fillText(label, 48, 24);
+    ctx.beginPath(); ctx.moveTo(x0, y0 - data[0]*scaleY); for(let i=1;i<data.length;i++){ ctx.lineTo(x0+stepX*i, y0 - data[i]*scaleY); }
+    ctx.strokeStyle= getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#ffd34d'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle= ctx.strokeStyle; data.forEach((v,i)=>{ctx.beginPath();ctx.arc(x0+stepX*i, y0 - v*scaleY, 3, 0, Math.PI*2);ctx.fill()});
+    ctx.fillStyle='#6b5e00'; ctx.font='12px system-ui'; ctx.fillText(label, 48, 24);
   }
   function drawBar(id, labels, data, label){
     const c=$(id); const ctx=c.getContext('2d'); const W=c.width=c.clientWidth; const H=c.height; ctx.clearRect(0,0,W,H);
-    ctx.strokeStyle = '#294b73'; ctx.lineWidth=1; ctx.strokeRect(40,10,W-50,H-30);
+    ctx.strokeStyle = '#b08900'; ctx.lineWidth=1; ctx.strokeRect(40,10,W-50,H-30);
     if(!data.length) return; const max=Math.max(10,...data); const x0=40, y0=H-20, x1=W-10, y1=10; const n=data.length; const barW=(x1-x0)/n*0.6; const gap=(x1-x0)/n*0.4; const scaleY=(y0-y1)/max;
-    ctx.fillStyle='#ffd34d'; data.forEach((v,i)=>{ const x=x0+i*(barW+gap); const h=v*scaleY; ctx.fillRect(x, y0-h, barW, h); });
-    ctx.fillStyle='#b8d3f0'; ctx.font='12px system-ui'; ctx.fillText(label, 48, 24);
+    ctx.fillStyle= getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#ffd34d';
+    data.forEach((v,i)=>{ const x=x0+i*(barW+gap); const h=v*scaleY; ctx.fillRect(x, y0-h, barW, h); });
+    ctx.fillStyle='#6b5e00'; ctx.font='12px system-ui'; ctx.fillText(label, 48, 24);
   }
 
-  // ====== EKSPORT/IMPORT ======
+  // ====== EKSPORT/IMPORT JSON/CSV ======
   function exportCsv(){
     const arr=JSON.parse(localStorage.getItem('rp_records')||'[]'); if(arr.length===0){alert('Tiada rekod untuk dieksport.');return}
     const header=['Tarikh','Nama','Kelas','Jenis','Petikan','Perkataan','Masa(s)','WPM','CWPM','Kefahaman(%)'];
@@ -302,20 +343,119 @@
     const url = $('sheetsWebhook').value.trim(); if(!url){ alert('Sila tampal URL Webhook Apps Script dahulu.'); return }
     const arr = JSON.parse(localStorage.getItem('rp_records')||'[]'); if(arr.length===0){ alert('Tiada rekod untuk dihantar.'); return }
     try{
-      const payload = {records: arr.slice(-20)}; // hantar maksimum 20 terakhir
+      const payload = {records: arr.slice(-20)};
       const res = await fetch(url,{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
       if(!res.ok) throw new Error('Gagal menghantar');
       alert('Berjaya hantar rekod ke Google Sheets.');
     }catch(err){ alert('Ralat penghantaran: '+ err.message); }
   }
 
-  // ====== TAMBAH PETIKAN (teks sahaja) ======
+  // ====== TAMBAH PETIKAN (prompt) ======
   function addPassage(){
     const title = prompt('Tajuk petikan baharu?'); if(!title) return;
     const text = prompt('Masukkan teks petikan (min 40 patah kata)'); if(!text) return;
+    addPassageWithText(title, text);
+    alert('Petikan ditambah. (Jika tiada kuiz — rekod tetap boleh disimpan tanpa penilaian kefahaman)');
+  }
+  function addPassageWithText(title, text){
     const id = 'custom-'+Date.now(); PASSAGES.push({id,title,text,quiz:[]});
     const opt=document.createElement('option'); opt.value=id; opt.textContent=title; $('passageSelect').appendChild(opt); $('passageSelect').value=id; renderPassage();
-    alert('Petikan ditambah. (Tiada kuiz — rekod akan disimpan tanpa penilaian kefahaman)');
+  }
+
+  // ====== MUAT NAIK PETIKAN (TXT/PDF/DOCX/PPTX/IMG) ======
+  let libs = { pdf:false, mammoth:false, pptx:false, ocr:false };
+  async function ensurePDF(){ if(libs.pdf) return;
+    $('libStatus').textContent='Memuat modul PDF.js…';
+    await dynLoadScript('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.min.js');
+    await dynLoadScript('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.min.js');
+    if(window.pdfjsLib){ try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.min.js'; }catch{} }
+    libs.pdf=true; $('libStatus').textContent='Mod PDF tersedia.';
+  }
+  async function ensureDOCX(){ if(libs.mammoth) return;
+    $('libStatus').textContent='Memuat modul Mammoth (DOCX)…';
+    await dynLoadScript('https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js');
+    libs.mammoth=true; $('libStatus').textContent='Mod DOCX tersedia.';
+  }
+  async function ensurePPTX(){ if(libs.pptx) return;
+    $('libStatus').textContent='Memuat modul JSZip (PPTX)…';
+    await dynLoadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+    libs.pptx=true; $('libStatus').textContent='Mod PPTX tersedia.';
+  }
+  async function ensureOCR(){ if(libs.ocr) return;
+    $('libStatus').textContent='Memuat modul Tesseract (OCR)…';
+    await dynLoadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+    libs.ocr=true; $('libStatus').textContent='Mod OCR tersedia.';
+  }
+
+  async function extractFromPDF(file){
+    await ensurePDF();
+    const buf = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({data: buf}).promise;
+    let text = '';
+    for(let i=1;i<=pdf.numPages;i++){
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const strings = content.items.map(it => it.str);
+      text += strings.join(' ') + '\n';
+    }
+    return text;
+  }
+  async function extractFromDOCX(file){
+    await ensureDOCX();
+    const arr = await file.arrayBuffer();
+    const res = await window.mammoth.extractRawText({arrayBuffer: arr});
+    return res.value || '';
+  }
+  async function extractFromPPTX(file){
+    await ensurePPTX();
+    // Baca zip PPTX dan himpunkan teks dari slide XML
+    const zip = await JSZip.loadAsync(file);
+    const slideFiles = Object.keys(zip.files).filter(k=>/^ppt\/slides\/slide\d+\.xml$/.test(k)).sort((a,b)=>{
+      const na=Number(a.match(/slide(\d+)\.xml/)[1]); const nb=Number(b.match(/slide(\d+)\.xml/)[1]); return na-nb;
+    });
+    let text = '';
+    for(const k of slideFiles){
+      const xml = await zip.files[k].async('string');
+      // keluarkan teks di antara tag <a:t>...</a:t>
+      const parts = [...xml.matchAll(/<a:t[^>]*>(.*?)<\/a:t>/g)].map(m=>m[1]);
+      text += parts.join(' ') + '\n';
+    }
+    return text;
+  }
+  async function extractFromImage(file){
+    await ensureOCR();
+    try{
+      const result = await window.Tesseract.recognize(file, 'msa', { logger:m=>{ if(m.status) $('libStatus').textContent='OCR: '+m.status }});
+      return (result && result.data && result.data.text) ? result.data.text : '';
+    }catch(e){
+      const result = await window.Tesseract.recognize(file, 'eng');
+      return (result && result.data && result.data.text) ? result.data.text : '';
+    }
+  }
+
+  async function handleImportFiles(){
+    const files = [...($('fileInput').files||[])];
+    if(!files.length){ alert('Pilih sekurang-kurangnya satu fail.'); return; }
+    $('importLog').textContent=''; let added=0;
+    for(const f of files){
+      try{
+        const ext = (f.name.split('.').pop()||'').toLowerCase();
+        log('• Memproses: '+f.name);
+        let text='';
+        if(ext==='txt'){ text = await f.text(); }
+        else if(ext==='pdf'){ text = await extractFromPDF(f); }
+        else if(ext==='docx'){ text = await extractFromDOCX(f); }
+        else if(ext==='pptx'){ text = await extractFromPPTX(f); }
+        else if(['png','jpg','jpeg','webp','bmp'].includes(ext)){ text = await extractFromImage(f); }
+        else { log('❌ Format tidak disokong: '+ext); continue; }
+        const cleaned = (text||'').replace(/[\s\u00A0]+/g,' ').trim();
+        if(cleaned.length < 20){ log('⚠️ Teks terlalu pendek / gagal diekstrak.'); continue; }
+        addPassageWithText(f.name.replace(/\.[^.]+$/,''), cleaned);
+        log('✅ Ditambah ('+cleaned.split(/\s+/).length+' perkataan).');
+        added++;
+      }catch(e){ log('❌ Ralat: '+(e.message||e)); }
+    }
+    if(added>0){ $('importLog').parentElement.open = true; renderPassage(); }
   }
 
   // ====== WIRING ======
@@ -330,6 +470,7 @@
   $('btnPrint').addEventListener('click',()=>window.print());
   $('btnSendSheets').addEventListener('click',sendToSheets);
   $('btnAddPassage').addEventListener('click',addPassage);
+  $('btnImportFiles').addEventListener('click',handleImportFiles);
 
   // LOAD
   init();
