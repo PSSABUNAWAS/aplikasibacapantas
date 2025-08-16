@@ -1,371 +1,99 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Aplikasi Bacaan Pantas — Dengan Muat Naik Petikan</title>
-<style>
-  :root{
-    --bg:#0a2540; --panel:#103d68; --accent:#ffd34d; --text:#eef6ff; --muted:#b8d3f0; --ok:#2ecc71; --warn:#ffb020;
-  }
-  html,body{height:100%;margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;color:var(--text)}
-  header{display:flex;gap:12px;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#123e70,#0f3359);padding:10px 14px;border-bottom:2px solid #0b2846;position:sticky;top:0;z-index:2}
-  .brand{display:flex;align-items:center;gap:10px}
-  .brand h1{font-size:16px;margin:0}
-  .wrap{max-width:1100px;margin:18px auto;padding:0 14px}
-  .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
-  @media (max-width:920px){.grid{grid-template-columns:1fr}}
-  section{background:linear-gradient(180deg,#113963,#0f3155);border:1px solid #0b2846;border-radius:12px;padding:14px}
-  h2{margin:0 0 10px 0;font-size:18px}
-  label{font-size:14px;color:var(--muted)}
-  select, input[type="text"], textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #0b2846;background:#0b2b4a;color:var(--text)}
-  .row{display:flex;gap:10px;flex-wrap:wrap}
-  .row > *{flex:1 1 160px}
-  button{padding:10px 14px;border-radius:10px;border:1px solid #0b2846;background:var(--accent);color:#041c33;font-weight:600;cursor:pointer}
-  .ghost{background:#0b2b4a;color:var(--text);border:1px dashed #2a4b74}
-  .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#0b2b4a;border:1px solid #2a4b74;color:var(--muted);font-size:12px}
-  .stat{display:flex;gap:10px;align-items:center}
-  .stat span{font-size:28px;font-weight:800}
-  .log{max-height:220px;overflow:auto;background:#09243e;border-radius:10px;padding:10px;border:1px solid #0b2846}
-  .small{font-size:12px;color:var(--muted)}
-  .ok{color:var(--ok);font-weight:700}
-  .warn{color:var(--warn);font-weight:700}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aplikasi Bacaan Pantas — Latar Kuning</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fffacd; /* kuning lembut */
+    }
+    header {
+      text-align: center;
+      padding: 20px;
+      background: #ffe066;
+      border-bottom: 2px solid #e0c94d;
+    }
+    h1 {
+      margin: 0;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #ffd34d;
+      border: none;
+      padding: 10px 16px;
+      margin: 6px 0;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #ffcc00;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      margin: 10px 0;
+    }
+  </style>
 </head>
 <body>
-<header>
-  <div class="brand">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path fill="#ffd34d" d="M12 2l3 6 6 .9-4.5 4.4 1 6.3L12 16l-5.5 3.6 1-6.3L3 8.9 9 8l3-6z"/></svg>
-    <h1>Bacaan Pantas — Import PDF/DOCX/IMEJ/TXT</h1>
-  </div>
-  <div class="pill" id="libStatus">Mod: Lite (TXT) — PDF/DOCX/IMEJ akan memuat modul bila perlu.</div>
-</header>
+  <header>
+    <h1>Aplikasi Bacaan Pantas</h1>
+    <p>Versi dengan latar belakang kuning lembut</p>
+  </header>
 
-<div class="wrap">
-  <div class="grid">
-    <!-- KIRI: Kawalan Bacaan -->
-    <section>
-      <h2>1) Pilih / Tambah Petikan</h2>
-      <div class="row">
-        <div>
-          <label>Senarai Petikan</label>
-          <select id="passageSelect"></select>
-        </div>
-        <div>
-          <label>&nbsp;</label>
-          <button class="ghost" id="btnView">Lihat Petikan</button>
-        </div>
-      </div>
+  <div class="container">
+    <h2>Petikan</h2>
+    <textarea id="petikan" placeholder="Masukkan petikan di sini..."></textarea>
+    <button onclick="mulaBaca()">Mula Baca</button>
+    <button onclick="tamatBaca()">Selesai Baca</button>
 
-      <details style="margin-top:10px;">
-        <summary><b>Tambah Petikan (tampal teks)</b></summary>
-        <div class="row" style="margin-top:10px;">
-          <input type="text" id="newTitle" placeholder="Tajuk petikan">
-          <button id="btnAdd">Tambah</button>
-        </div>
-        <textarea id="newBody" rows="6" placeholder="Tampal teks petikan di sini..."></textarea>
-      </details>
-
-      <details style="margin-top:10px;" open>
-        <summary><b>Muat Naik Petikan (PDF / DOCX / Imej / TXT)</b></summary>
-        <div class="row" style="margin-top:10px;">
-          <input id="fileInput" type="file" multiple accept=".txt,.pdf,.docx,.png,.jpg,.jpeg,.webp,.bmp" />
-          <button id="btnImport" title="Proses dan tambah ke senarai petikan">Proses Fail</button>
-        </div>
-        <div class="small">PDF & DOCX diekstrak kepada teks. Imej (PNG/JPG dsb.) akan di-OCR. Pertama kali, pelayar akan memuat modul dari CDN.</div>
-        <div id="importLog" class="log" style="margin-top:8px;"></div>
-      </details>
-    </section>
-
-    <!-- KANAN: Rekod & Pemasa -->
-    <section>
-      <h2>2) Ujian Bacaan</h2>
-      <div class="row">
-        <input id="studentName" type="text" placeholder="Nama murid">
-        <input id="studentClass" type="text" placeholder="Kelas (cth 5 Bestari)">
-      </div>
-
-      <div class="row" style="margin-top:10px;">
-        <button id="btnStart">Mula</button>
-        <button id="btnStop" class="ghost" disabled>Selesai</button>
-        <div class="stat"><label>Masa:</label> <span id="time">00:00</span></div>
-        <div class="stat"><label>WPM:</label> <span id="wpm">0</span></div>
-      </div>
-
-      <div id="textPreview" class="log" style="margin-top:10px;white-space:pre-wrap"></div>
-
-      <div class="row" style="margin-top:10px;">
-        <button id="btnSave" class="ghost" disabled>Simpan Rekod</button>
-        <button id="btnExport" class="ghost">Eksport CSV</button>
-      </div>
-
-      <div class="small" style="margin-top:6px">
-        Rumus WPM = (bilangan perkataan ÷ saat) × 60
-      </div>
-    </section>
+    <h3>Keputusan</h3>
+    <p id="keputusan">Belum ada bacaan direkodkan.</p>
   </div>
 
-  <!-- Dashboard ringkas -->
-  <section style="margin-top:16px">
-    <h2>3) Dashboard Ringkas</h2>
-    <canvas id="chartWPM" width="900" height="260" style="max-width:100%"></canvas>
-    <div class="small">Graf WPM daripada rekod tersimpan (localStorage).</div>
-  </section>
+  <script>
+    let mulaMasa = 0;
+    let kiraanPerkataan = 0;
 
-  <section style="margin-top:16px">
-    <h2>Rekod</h2>
-    <div id="records" class="log"></div>
-  </section>
-</div>
-
-<script>
-/* ---------- Utiliti Asas ---------- */
-const $ = s => document.querySelector(s);
-const log = (msg) => { const el = $("#importLog"); el.innerHTML += msg + "\\n"; el.scrollTop = el.scrollHeight; };
-const wordCount = (t) => (t.trim().match(/\\b\\w+\\b/g)||[]).length;
-const fmtTime = s => {
-  const m = Math.floor(s/60), r = s%60;
-  return String(m).padStart(2,'0') + ":" + String(r).padStart(2,'0');
-};
-const dynLoadScript = (src) => new Promise((res, rej) => {
-  const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Gagal muat: '+src)); document.head.appendChild(s);
-});
-/* ---------- Data Petikan ---------- */
-let PASSAGES = [
-  {id: crypto.randomUUID(), title:"Contoh: Hobi Membaca", text:"Membaca membuka jendela ilmu. Murid yang membaca setiap hari meningkatkan kosa kata dan kefahaman. Amalan ini boleh dibuat di rumah dan sekolah."},
-  {id: crypto.randomUUID(), title:"Contoh: Kitar Semula", text:"Kitar semula mengurangkan sisa dan menjaga alam sekitar. Pisahkan kertas, plastik dan kaca agar mudah dikumpulkan."}
-];
-let CURRENT = {text:"", words:0};
-let timer = {running:false, start:0, seconds:0, tick:null};
-
-/* ---------- Inisialisasi ---------- */
-function refreshPassageSelect(){
-  const sel = $("#passageSelect");
-  sel.innerHTML = "";
-  PASSAGES.forEach(p => {
-    const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.title; sel.appendChild(opt);
-  });
-  if(PASSAGES.length) sel.value = PASSAGES[0].id;
-  showSelected();
-}
-function showSelected(){
-  const id = $("#passageSelect").value;
-  const p = PASSAGES.find(x => x.id===id);
-  if(!p) return;
-  CURRENT.text = p.text;
-  CURRENT.words = wordCount(p.text);
-  $("#textPreview").textContent = p.text;
-  updateWPM();
-}
-function addPassage(title, text){
-  const clean = (text||"").replace(/[\\u0000-\\u001F]/g," ").trim();
-  if(!title) title = "Petikan baharu";
-  if(!clean) return;
-  PASSAGES.unshift({id: crypto.randomUUID(), title, text: clean});
-  refreshPassageSelect();
-  $("#importLog").parentElement.open = true;
-  log("✅ Ditambah: " + title + " ("+wordCount(clean)+" perkataan)");
-}
-/* ---------- Pemasa ---------- */
-function startTimer(){
-  if(!CURRENT.text){ alert("Tiada petikan dipilih."); return; }
-  timer.running = true; timer.seconds = 0; timer.start = Date.now();
-  $("#btnStart").disabled = true; $("#btnStop").disabled = false; $("#btnSave").disabled = true;
-  timer.tick = setInterval(()=>{
-    timer.seconds = Math.floor((Date.now()-timer.start)/1000);
-    $("#time").textContent = fmtTime(timer.seconds);
-    updateWPM();
-  }, 250);
-}
-function stopTimer(){
-  if(!timer.running) return;
-  clearInterval(timer.tick); timer.running = false;
-  $("#btnStart").disabled = false; $("#btnStop").disabled = true; $("#btnSave").disabled = false;
-}
-function updateWPM(){
-  const secs = Math.max(1, timer.seconds||1);
-  const wpm = Math.round((CURRENT.words / secs) * 60);
-  $("#wpm").textContent = isFinite(wpm) ? wpm : 0;
-}
-/* ---------- Rekod ---------- */
-const KEY = "bp_records_v1";
-function getRecords(){ try{ return JSON.parse(localStorage.getItem(KEY)||"[]"); }catch{ return []; } }
-function setRecords(x){ localStorage.setItem(KEY, JSON.stringify(x)); }
-function saveRecord(){
-  const name = $("#studentName").value.trim() || "-";
-  const klas = $("#studentClass").value.trim() || "-";
-  const id = $("#passageSelect").value;
-  const p = PASSAGES.find(x=>x.id===id);
-  const rec = {
-    t: new Date().toISOString(),
-    name, class: klas,
-    passage: p ? p.title : "-",
-    words: CURRENT.words,
-    seconds: timer.seconds,
-    wpm: Number($("#wpm").textContent)||0
-  };
-  const list = getRecords(); list.unshift(rec); setRecords(list);
-  renderRecords(); drawChart();
-  $("#btnSave").disabled = true;
-}
-function renderRecords(){
-  const list = getRecords();
-  $("#records").innerHTML = list.slice(0,50).map(r => 
-    `${new Date(r.t).toLocaleString()} — ${r.name} (${r.class}) · “${r.passage}” · ${r.words} patah · ${fmtTime(r.seconds)} · WPM ${r.wpm}`
-  ).join("\\n");
-}
-function exportCSV(){
-  const list = getRecords();
-  const header = ["Tarikh","Nama","Kelas","Petikan","Perkataan","Saat","WPM"];
-  const rows = list.map(r=>[r.t,r.name,r.class,r.passage,r.words,r.seconds,r.wpm]);
-  const csv = [header].concat(rows).map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\\n");
-  const blob = new Blob([csv],{type:"text/csv;charset=utf-8"});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "rekod-bacaan.csv"; a.click();
-}
-
-/* ---------- Muat naik & ekstraksi ---------- */
-let libs = { pdf:false, mammoth:false, ocr:false };
-
-async function ensurePDF(){
-  if(libs.pdf) return;
-  $("#libStatus").textContent = "Memuat modul PDF.js…";
-  // PDF.js (classic build + worker)
-  await dynLoadScript("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.min.js");
-  await dynLoadScript("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.min.js");
-  // setup worker src jika perlu
-  if(window['pdfjsLib']){
-    try{ window['pdfjsLib'].GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.7.76/build/pdf.worker.min.js"; }catch{}
-  }
-  libs.pdf = true;
-  $("#libStatus").textContent = "Mod: PDF tersedia";
-}
-async function ensureDOCX(){
-  if(libs.mammoth) return;
-  $("#libStatus").textContent = "Memuat modul Mammoth (DOCX)…";
-  await dynLoadScript("https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js");
-  libs.mammoth = true;
-  $("#libStatus").textContent = "Mod: DOCX tersedia";
-}
-async function ensureOCR(){
-  if(libs.ocr) return;
-  $("#libStatus").textContent = "Memuat modul Tesseract (OCR)…";
-  await dynLoadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
-  libs.ocr = true;
-  $("#libStatus").textContent = "Mod: OCR tersedia";
-}
-
-async function extractFromPDF(file){
-  await ensurePDF();
-  const buf = await file.arrayBuffer();
-  const pdf = await window.pdfjsLib.getDocument({data: buf}).promise;
-  let text = "";
-  for(let i=1;i<=pdf.numPages;i++){
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    const strings = content.items.map(it => it.str);
-    text += strings.join(" ") + "\\n";
-  }
-  return text;
-}
-async function extractFromDOCX(file){
-  await ensureDOCX();
-  const arr = await file.arrayBuffer();
-  const res = await window.mammoth.extractRawText({arrayBuffer: arr});
-  return res.value || "";
-}
-async function extractFromImage(file){
-  await ensureOCR();
-  const { createWorker } = window.Tesseract; // v5 exposes Tesseract directly
-  // v5: Tesseract.recognize(file, 'msa'|'eng') — gunakan 'msa' jika ada, kalau tidak guna 'eng'
-  let lang = 'msa'; // Bahasa Melayu; fallback ke eng jika gagal
-  try{
-    // cuba load 'msa', jika cdn tak ada model, tesseract akan fallback
-    const result = await window.Tesseract.recognize(file, lang, { logger: m=>{ if(m.status) $("#libStatus").textContent = 'OCR: '+m.status } });
-    return (result && result.data && result.data.text) ? result.data.text : "";
-  }catch(e){
-    log("⚠️ OCR ms gagal, cuba 'eng'…");
-    const result = await window.Tesseract.recognize(file, 'eng');
-    return (result && result.data && result.data.text) ? result.data.text : "";
-  }
-}
-
-async function handleImport(){
-  const files = [...($("#fileInput").files||[])];
-  if(!files.length){ alert("Pilih sekurang-kurangnya satu fail."); return; }
-  $("#importLog").textContent = "";
-  for(const f of files){
-    try{
-      const ext = (f.name.split('.').pop()||'').toLowerCase();
-      log("• Memproses: "+f.name);
-      let text = "";
-      if(ext === "txt"){
-        text = await f.text();
-      }else if(ext === "pdf"){
-        text = await extractFromPDF(f);
-      }else if(ext === "docx"){
-        text = await extractFromDOCX(f);
-      }else if(["png","jpg","jpeg","webp","bmp"].includes(ext)){
-        text = await extractFromImage(f);
-      }else{
-        log("❌ Format tidak disokong: "+ext+" (guna TXT/PDF/DOCX/PNG/JPG/WEBP/BMP)");
-        continue;
-      }
-      const cleaned = (text||"").replace(/[\\s\\u00A0]+/g," ").trim();
-      if(cleaned.length < 20){
-        log("⚠️ Teks terlalu pendek / tak dapat diekstrak. Cuba semak kualiti fail.");
-      }else{
-        const title = f.name.replace(/\\.[^.]+$/,"");
-        addPassage(title, cleaned);
-      }
-    }catch(err){
-      log("❌ Ralat: "+(err.message||err));
+    function kiraPerkataan(teks) {
+      return teks.trim().split(/\\s+/).length;
     }
-  }
-}
 
-/* ---------- Carta WPM (tanpa lib luaran) ---------- */
-function drawChart(){
-  const cvs = $("#chartWPM"); const ctx = cvs.getContext('2d');
-  ctx.clearRect(0,0,cvs.width,cvs.height);
-  const rec = getRecords().slice().reverse(); // kronologi
-  if(!rec.length){ ctx.fillStyle="#b8d3f0"; ctx.fillText("Tiada rekod.", 20, 24); return; }
-  const pad = 40, W = cvs.width, H = cvs.height, iw = W - pad*2, ih = H - pad*2;
-  const xs = rec.map((_,i)=>i), ys = rec.map(r=>r.wpm);
-  const ymin = 0, ymax = Math.max(60, ...ys)*1.1;
-  const xTo = i => pad + (i/(xs.length-1||1))*iw;
-  const yTo = v => H - pad - ((v-ymin)/(ymax-ymin))*ih;
+    function mulaBaca() {
+      const teks = document.getElementById('petikan').value;
+      if (!teks) {
+        alert("Sila masukkan petikan dahulu.");
+        return;
+      }
+      mulaMasa = Date.now();
+      kiraanPerkataan = kiraPerkataan(teks);
+      document.getElementById('keputusan').innerText = "Bacaan bermula...";
+    }
 
-  // grid
-  ctx.strokeStyle="#2a4b74"; ctx.lineWidth=1;
-  for(let g=0; g<=5; g++){
-    const y = yTo((ymax/5)*g); ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(W-pad,y); ctx.stroke();
-  }
-  // axis
-  ctx.strokeStyle="#b8d3f0"; ctx.beginPath(); ctx.moveTo(pad,pad-10); ctx.lineTo(pad,H-pad+10); ctx.lineTo(W-pad,H-pad); ctx.stroke();
-  // line
-  ctx.beginPath(); ctx.lineWidth=2; ctx.strokeStyle="#ffd34d";
-  rec.forEach((r,i)=>{ const x=xTo(i), y=yTo(r.wpm); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
-  ctx.stroke();
-  // points
-  ctx.fillStyle="#ffd34d";
-  rec.forEach((r,i)=>{ const x=xTo(i), y=yTo(r.wpm); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill(); });
-  // labels
-  ctx.fillStyle="#b8d3f0"; ctx.font="12px system-ui";
-  ctx.fillText("WPM", 8, pad);
-}
-
-function init(){
-  refreshPassageSelect(); renderRecords(); drawChart();
-  $("#btnView").onclick = showSelected;
-  $("#passageSelect").onchange = showSelected;
-  $("#btnAdd").onclick = ()=> addPassage($("#newTitle").value.trim()||"Petikan baharu", $("#newBody").value);
-  $("#btnStart").onclick = startTimer;
-  $("#btnStop").onclick = stopTimer;
-  $("#btnSave").onclick = saveRecord;
-  $("#btnExport").onclick = exportCSV;
-  $("#btnImport").onclick = handleImport;
-}
-window.addEventListener('load', init);
-</script>
+    function tamatBaca() {
+      if (mulaMasa === 0) {
+        alert("Tekan 'Mula Baca' dahulu.");
+        return;
+      }
+      const tamatMasa = Date.now();
+      const masaSaat = (tamatMasa - mulaMasa) / 1000;
+      const wpm = Math.round((kiraanPerkataan / masaSaat) * 60);
+      document.getElementById('keputusan').innerText =
+        `Jumlah perkataan: ${kiraanPerkataan}\\nMasa: ${masaSaat.toFixed(1)} saat\\nKelajuan: ${wpm} WPM`;
+      mulaMasa = 0;
+    }
+  </script>
 </body>
 </html>
