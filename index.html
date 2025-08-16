@@ -1,99 +1,338 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aplikasi Bacaan Pantas — Latar Kuning</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aplikasi Bacaan Pantas — Lengkap (Offline + Dashboard + Sheets)</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #fffacd; /* kuning lembut */
-    }
-    header {
-      text-align: center;
-      padding: 20px;
-      background: #ffe066;
-      border-bottom: 2px solid #e0c94d;
-    }
-    h1 {
-      margin: 0;
-      color: #333;
-    }
-    .container {
-      max-width: 800px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    button {
-      background: #ffd34d;
-      border: none;
-      padding: 10px 16px;
-      margin: 6px 0;
-      cursor: pointer;
-      border-radius: 5px;
-      font-size: 14px;
-    }
-    button:hover {
-      background: #ffcc00;
-    }
-    textarea {
-      width: 100%;
-      height: 120px;
-      margin: 10px 0;
+    :root{--bg:#fffacd;--panel:#13395b;--accent:#ffd34d;--text:#eef6ff;--muted:#b8d3f0;--line:#294b73}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+    header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(180deg,#14406d,#0f3359);border-bottom:2px solid #0b2846}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:40px;height:40px;border-radius:10px;background:var(--accent);color:#15253c;display:grid;place-items:center;font-weight:900}
+    h1{margin:0;font-size:18px}
+    main{max-width:1200px;margin:18px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:980px){.grid{grid-template-columns:380px 1fr}}
+    .card{background:linear-gradient(180deg,#153f6b,#12355a);border:1px solid #0b2846;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:16px}
+    .card h2{margin:0 0 10px;font-size:18px}
+    label{display:block;margin:10px 0 6px;font-weight:600}
+    input,select,button,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid #244a73;background:#0f2f52;color:var(--text)}
+    input::placeholder,textarea::placeholder{color:#9fb9d7}
+    .btn{cursor:pointer;font-weight:700;background:var(--accent);color:#14253d;border:0}
+    .btn.secondary{background:#0f2f52;color:var(--text);border:1px solid #244a73}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap}
+    .muted{color:var(--muted);font-size:12px}
+    .reading-box{min-height:180px;background:#0f2f52;border:1px dashed #2b5588;border-radius:12px;padding:14px;line-height:1.7}
+    .stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+    .pill{padding:8px 12px;border-radius:999px;background:#0f2f52;border:1px solid #244a73;font-weight:700}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left}
+    .right{text-align:right}
+    canvas{background:#0f2f52;border-radius:12px;padding:8px}
+    .hidden{display:none}
+
+    /* Cetak */
+    @media print{
+      header,.no-print{display:none!important}
+      body{background:white;color:black}
+      main{max-width:100%;margin:0;padding:0}
+      .card{box-shadow:none;border:0;background:white;color:black}
+      table th, table td{border-bottom:1px solid #ccc}
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Aplikasi Bacaan Pantas</h1>
-    <p>Versi dengan latar belakang kuning lembut</p>
+    <div class="brand">
+      <div class="logo">RP</div>
+      <div>
+        <h1>Aplikasi Bacaan Pantas</h1>
+        <div class="muted">Lengkap · Offline · Dashboard · Google Sheets</div>
+      </div>
+    </div>
+    <div class="btnrow no-print">
+      <button id="btnExportCsv" class="btn secondary" title="Eksport hasil sebagai CSV">Eksport CSV</button>
+      <button id="btnExportJson" class="btn secondary" title="Muat turun rekod (JSON)">Muat Turun JSON</button>
+      <label class="btn secondary" style="display:inline-flex;align-items:center;gap:8px">Import JSON
+        <input id="importJson" type="file" accept="application/json" style="width:auto;display:none">
+      </label>
+      <button id="btnPrint" class="btn secondary" title="Cetak laporan">Cetak</button>
+      <button id="btnSendSheets" class="btn" title="Hantar rekod ke Google Sheets">Hantar ke Sheets</button>
+    </div>
   </header>
 
-  <div class="container">
-    <h2>Petikan</h2>
-    <textarea id="petikan" placeholder="Masukkan petikan di sini..."></textarea>
-    <button onclick="mulaBaca()">Mula Baca</button>
-    <button onclick="tamatBaca()">Selesai Baca</button>
+  <main>
+    <div class="grid">
+      <!-- Kawalan kiri -->
+      <section class="card">
+        <h2>Konfigurasi Ujian</h2>
+        <label>Nama murid</label>
+        <input id="studentName" placeholder="cth: Ali bin Ahmad" />
+        <label>Kelas</label>
+        <input id="studentClass" placeholder="cth: 4 Al-Khawarizmi" />
+        <label>Jenis bacaan</label>
+        <select id="mode">
+          <option value="senyap">Senyap (disyorkan)</option>
+          <option value="lantang">Lantang</option>
+        </select>
+        <div id="miscueWrap" class="hidden">
+          <label>Ralat bacaan (miscue) — untuk bacaan lantang</label>
+          <input id="miscue" type="number" min="0" step="1" value="0"/>
+          <div class="muted">CWPM = (Perkataan − miscues) ÷ masa (minit)</div>
+        </div>
+        <label>Pemilihan petikan</label>
+        <select id="passageSelect"></select>
+        <div class="btnrow">
+          <button id="btnAddPassage" class="btn secondary">Tambah Petikan (teks sahaja)</button>
+        </div>
+        <label>URL Webhook Google Sheets (Apps Script)</label>
+        <input id="sheetsWebhook" placeholder="cth: https://script.google.com/macros/s/AKfycbx.../exec" />
+        <div class="muted">Opsyenal. Butang “Hantar ke Sheets” akan guna URL ini.</div>
+        <div class="btnrow" style="margin-top:10px">
+          <button id="startBtn" class="btn">Mula</button>
+          <button id="finishBtn" class="btn secondary" disabled>Selesai</button>
+          <button id="resetBtn" class="btn secondary">Set semula</button>
+        </div>
+        <div class="stats">
+          <div class="pill">Masa: <span id="time">00:00</span></div>
+          <div class="pill">Perkataan: <span id="wordCount">0</span></div>
+          <div class="pill">WPM: <span id="wpm">0</span></div>
+          <div class="pill" id="cwpmPill" style="display:none">CWPM: <span id="cwpm">0</span></div>
+          <div class="pill">Kefahaman: <span id="compScore">-</span></div>
+          <div class="pill">Status: <span id="status">Belum mula</span></div>
+        </div>
+      </section>
 
-    <h3>Keputusan</h3>
-    <p id="keputusan">Belum ada bacaan direkodkan.</p>
-  </div>
+      <!-- Petikan & kuiz -->
+      <section class="card">
+        <h2>Petikan</h2>
+        <div id="passageBox" class="reading-box" aria-live="polite"></div>
+        <div id="quizBox" style="margin-top:16px"></div>
+      </section>
+    </div>
+
+    <!-- Rekod -->
+    <section class="card" style="margin-top:16px">
+      <h2>Rekod Ujian</h2>
+      <div class="muted">Data disimpan dalam peranti ini (localStorage). Jika petikan ada kuiz, rekod disimpan jika kefahaman ≥ 60%.</div>
+      <div id="records"></div>
+    </section>
+
+    <!-- Dashboard -->
+    <section class="card" style="margin-top:16px">
+      <h2>Dashboard</h2>
+      <div class="muted">Ringkasan automatik berdasarkan rekod di peranti ini.</div>
+      <div style="display:grid;grid-template-columns:1fr;gap:16px">
+        <canvas id="lineWpm" height="160" aria-label="Graf WPM"></canvas>
+        <canvas id="barComp" height="200" aria-label="Graf Kefahaman"></canvas>
+      </div>
+      <div class="stats">
+        <div class="pill">Purata WPM: <span id="avgWpm">0</span></div>
+        <div class="pill">Purata Kefahaman: <span id="avgComp">0%</span></div>
+        <div class="pill">Sesi: <span id="countSessions">0</span></div>
+      </div>
+    </section>
+  </main>
 
   <script>
-    let mulaMasa = 0;
-    let kiraanPerkataan = 0;
-
-    function kiraPerkataan(teks) {
-      return teks.trim().split(/\\s+/).length;
+  // ====== PETIKAN ASAS (boleh tambah) ======
+  const PASSAGES = [
+    {
+      id: 'membaca-di-perpustakaan',
+      title: 'Membaca di Pusat Sumber',
+      text: `Setiap pagi Rabu, murid-murid Tahun Empat berkunjung ke Pusat Sumber Sekolah. Mereka duduk mengikut kumpulan dan memilih bahan bacaan mengikut minat masing-masing. Ada yang gemar kisah sains, ada pula yang memilih cerita rakyat Melayu. Guru Pusat Sumber mengingatkan supaya membaca dengan tekun dan mencatat kosa kata baharu dalam buku kecil. Selepas tamat sesi, setiap murid berkongsi ringkasan ringkas tentang apa yang difahami. Aktiviti ini membantu mereka melatih tumpuan, memperkaya perbendaharaan kata, dan membina keyakinan untuk bercakap di hadapan rakan.`,
+      quiz: [
+        {q: 'Pada hari apa murid Tahun Empat ke Pusat Sumber?', a: ['Isnin','Rabu','Jumaat','Ahad'], correct: 1},
+        {q: 'Apakah dua jenis bahan bacaan yang disebut?', a: ['Sejarah & geografi','Sains & cerita rakyat','Puisi & drama','Laporan & berita'], correct: 1},
+        {q: 'Apakah yang diminta guru dicatat oleh murid?', a: ['Nama pengarang','Bilangan halaman','Kosa kata baharu','Tarikh pinjaman'], correct: 2},
+        {q: 'Apakah aktiviti selepas membaca?', a: ['Menulis karangan panjang','Membuat lakaran','Berkongsi ringkasan','Mencari buku baharu'], correct: 2},
+        {q: 'Apakah manfaat utama aktiviti ini?', a: ['Menghafal tajuk buku','Meningkatkan keyakinan & perbendaharaan kata','Menambah masa rehat','Mengurangkan kerja rumah'], correct: 1}
+      ]
+    },
+    {
+      id: 'jaga-kebersihan',
+      title: 'Jaga Kebersihan Sekolah',
+      text: `Kebersihan sekolah tanggungjawab bersama. Setiap kelas mempunyai jadual bertugas yang disemak pada setiap pagi. Murid-murid menyapu lantai, mengelap meja, dan memastikan tong kitar semula digunakan dengan betul. Apabila kawasan pembelajaran bersih, minda menjadi lebih tenang dan pembelajaran berlangsung dengan selesa. Guru pula memberi pujian kepada kelas yang paling kemas sebagai motivasi. Amalan ini membentuk disiplin, kerjasama, dan rasa sayang akan sekolah.`,
+      quiz: [
+        {q: 'Bilakah jadual bertugas disemak?', a: ['Setiap petang','Setiap pagi','Setiap minggu','Setiap bulan'], correct: 1},
+        {q: 'Apakah tugas murid?', a: ['Mengecat dinding','Membeli tong sampah','Menyapu & mengelap','Menanam pokok besar'], correct: 2},
+        {q: 'Mengapa kebersihan penting?', a: ['Menambah kerja rumah','Menenangkan minda & selesa','Mengurangkan waktu rehat','Meningkatkan bising'], correct: 1},
+        {q: 'Apakah ganjaran daripada guru?', a: ['Markah bonus','Pujian','Cuti tambahan','Hadiah wang'], correct: 1},
+        {q: 'Apakah nilai yang dibentuk?', a: ['Persaingan','Disiplin & kerjasama','Bergantung pada orang lain','Tidak peduli'], correct: 1}
+      ]
+    },
+    {
+      id: 'keselamatan-jalan',
+      title: 'Keselamatan Jalan Raya',
+      text: `Apabila melintas jalan, murid perlu berhenti di tepi, melihat kiri dan kanan, kemudian melintas apabila selamat. Gunakan lintasan zebra atau jejantas jika ada. Penunggang basikal hendaklah memakai topi keledar dan memastikan brek berfungsi. Ibu bapa diingatkan untuk menurunkan anak di kawasan yang ditetapkan supaya trafik sekolah kekal teratur. Apabila semua mematuhi peraturan, kemalangan dapat dielakkan dan perjalanan ke sekolah menjadi lebih selamat.`,
+      quiz: [
+        {q: 'Apakah langkah sebelum melintas?', a: ['Terus berlari','Melihat kiri dan kanan','Menutup mata','Mengangkat tangan sahaja'], correct: 1},
+        {q: 'Apakah kemudahan untuk melintas?', a: ['Lintasan zebra/jejantas','Laluan basikal','Padang sekolah','Tempat letak kereta'], correct: 0},
+        {q: 'Apa perlu dipakai penunggang basikal?', a: ['Sarung tangan','Topi keledar','Kasut sukan','Jaket hujan'], correct: 1},
+        {q: 'Mengapa ibu bapa perlu menurunkan anak di tempat ditetapkan?', a: ['Supaya cepat pulang','Supaya trafik teratur','Supaya guru senang','Supaya parkir penuh'], correct: 1},
+        {q: 'Apakah manfaat mematuhi peraturan?', a: ['Masa rehat bertambah','Elak kemalangan','Dapat markah bonus','Bunyi bising berkurang'], correct: 1}
+      ]
     }
+  ];
 
-    function mulaBaca() {
-      const teks = document.getElementById('petikan').value;
-      if (!teks) {
-        alert("Sila masukkan petikan dahulu.");
-        return;
-      }
-      mulaMasa = Date.now();
-      kiraanPerkataan = kiraPerkataan(teks);
-      document.getElementById('keputusan').innerText = "Bacaan bermula...";
-    }
+  // ====== UTIL ======
+  const $ = (id)=>document.getElementById(id);
+  const fmtTime = (s)=>{ const m = Math.floor(s/60).toString().padStart(2,'0'); const r = Math.floor(s%60).toString().padStart(2,'0'); return `${m}:${r}`; };
+  const countWords = (t)=> t.trim().split(/\s+/).filter(Boolean).length;
+  const nowMY = ()=> new Date().toLocaleString('ms-MY',{timeZone:'Asia/Kuala_Lumpur'});
 
-    function tamatBaca() {
-      if (mulaMasa === 0) {
-        alert("Tekan 'Mula Baca' dahulu.");
-        return;
-      }
-      const tamatMasa = Date.now();
-      const masaSaat = (tamatMasa - mulaMasa) / 1000;
-      const wpm = Math.round((kiraanPerkataan / masaSaat) * 60);
-      document.getElementById('keputusan').innerText =
-        `Jumlah perkataan: ${kiraanPerkataan}\\nMasa: ${masaSaat.toFixed(1)} saat\\nKelajuan: ${wpm} WPM`;
-      mulaMasa = 0;
+  // ====== STATE ======
+  let timer=null, startTime=0, elapsed=0; // seconds
+  let currentPassage = null; let compScore = null;
+
+  // ====== INIT ======
+  function init(){
+    const sel = $('passageSelect');
+    PASSAGES.forEach(p=>{ const opt=document.createElement('option'); opt.value=p.id; opt.textContent=p.title; sel.appendChild(opt); });
+    sel.value = PASSAGES[0].id; renderPassage(); renderRecords();
+  }
+
+  // UI helpers
+  function toggleMiscue(){ const isLoud = $('mode').value==='lantang'; $('miscueWrap').classList.toggle('hidden', !isLoud); $('cwpmPill').style.display = isLoud? 'inline-block':'none'; }
+
+  function renderPassage(){
+    const id = $('passageSelect').value; currentPassage = PASSAGES.find(p=>p.id===id);
+    const words = countWords(currentPassage.text);
+    $('passageBox').textContent = currentPassage.text;
+    $('wordCount').textContent = words; $('quizBox').innerHTML=''; compScore=null; $('compScore').textContent='-'; $('status').textContent='Sedia';
+  }
+
+  function start(){ if(timer) return; $('status').textContent='Sedang membaca…'; startTime = Date.now(); timer=setInterval(()=>{ elapsed=(Date.now()-startTime)/1000; $('time').textContent=fmtTime(elapsed); const w=countWords(currentPassage.text); const wpm=Math.round((w/(elapsed/60))); $('wpm').textContent=isFinite(wpm)?wpm:0; if($('mode').value==='lantang'){ const misc = Number($('miscue').value||0); const cwpm = Math.max(0, Math.round(((w - misc)/(elapsed/60)))); $('cwpm').textContent = isFinite(cwpm)?cwpm:0; } },200); $('finishBtn').disabled=false; }
+  function finish(){ if(!timer) return; clearInterval(timer); timer=null; $('status').textContent='Lengkap bacaan — jawab kefahaman'; renderQuiz(); }
+  function reset(){ if(timer){clearInterval(timer); timer=null} elapsed=0; $('time').textContent='00:00'; $('wpm').textContent=0; $('cwpm').textContent=0; compScore=null; $('compScore').textContent='-'; $('status').textContent='Sedia'; $('finishBtn').disabled=true; $('quizBox').innerHTML=''; }
+
+  // ====== QUIZ ======
+  function renderQuiz(){
+    const q = currentPassage.quiz || []; const box = $('quizBox'); box.innerHTML='';
+    if(!q.length){ box.innerHTML = '<div class="muted">Tiada kuiz untuk petikan ini. Klik Selesai untuk simpan rekod.</div>'; saveAfterQuiz(false); return }
+    const h = document.createElement('h3'); h.textContent = `Soalan Kefahaman (${q.length} soalan)`; box.appendChild(h);
+    q.forEach((item,idx)=>{
+      const div=document.createElement('div'); div.style.margin='10px 0'; const name=`q${idx}`;
+      div.innerHTML = `<div><strong>${idx+1}. ${item.q}</strong></div>` + item.a.map((ans,i)=>`<label style="display:block;margin:6px 0 0"><input type="radio" name="${name}" value="${i}"> ${ans}</label>`).join('');
+      box.appendChild(div);
+    });
+    const submit=document.createElement('button'); submit.className='btn'; submit.textContent='Hantar jawapan'; submit.onclick = ()=>gradeQuiz(q.length); box.appendChild(submit);
+  }
+  function gradeQuiz(n){
+    const q = currentPassage.quiz; let correct=0; for(let i=0;i<n;i++){ const chosen = document.querySelector(`input[name=q${i}]:checked`); if(chosen && Number(chosen.value)===q[i].correct) correct++; }
+    compScore = Math.round((correct/n)*100); $('compScore').textContent = compScore + '%'; $('status').textContent='Dinilai'; saveAfterQuiz(true);
+  }
+
+  function saveAfterQuiz(hadQuiz){
+    const words=countWords(currentPassage.text); const wpm=Math.round((words/(elapsed/60)));
+    const misc = $('mode').value==='lantang'? Number($('miscue').value||0):0; const cwpm = $('mode').value==='lantang'? Math.max(0, Math.round(((words - misc)/(elapsed/60)))) : null;
+    // Syarat simpan: jika ada kuiz → comp >= 60; jika tiada kuiz → simpan terus.
+    if(!hadQuiz || (hadQuiz && compScore>=60)){
+      const rec={ ts: nowMY(), name:$('studentName').value||'-tanpa nama-', class:$('studentClass').value||'-', mode:$('mode').value, passage: currentPassage.title, words, seconds: Math.round(elapsed), wpm, cwpm, comp: compScore ?? '-' };
+      const arr=JSON.parse(localStorage.getItem('rp_records')||'[]'); arr.push(rec); localStorage.setItem('rp_records', JSON.stringify(arr));
+      renderRecords(); renderDashboard(arr);
+      alert('Rekod disimpan.');
+    }else{
+      alert('Skor kefahaman kurang 60%. Rekod tidak disimpan. Cuba lagi.');
     }
+  }
+
+  // ====== REKOD ======
+  function renderRecords(){
+    const wrap=$('records'); const arr=JSON.parse(localStorage.getItem('rp_records')||'[]');
+    if(arr.length===0){ wrap.innerHTML='<div class="muted">Tiada rekod lagi.</div>'; renderDashboard([]); return }
+    let html='<div style="overflow:auto"><table><thead><tr><th>Tarikh</th><th>Nama</th><th>Kelas</th><th>Jenis</th><th>Petikan</th><th class="right">Perkataan</th><th class="right">Masa (s)</th><th class="right">WPM</th><th class="right">CWPM</th><th class="right">Kefahaman</th></tr></thead><tbody>';
+    arr.forEach(r=>{ html+=`<tr><td>${r.ts}</td><td>${r.name}</td><td>${r.class}</td><td>${r.mode}</td><td>${r.passage}</td><td class="right">${r.words}</td><td class="right">${r.seconds}</td><td class="right">${r.wpm}</td><td class="right">${r.cwpm??'-'}</td><td class="right">${r.comp ?? '-'}</td></tr>`; });
+    html+='</tbody></table></div>';
+    html+='<div class="btnrow no-print" style="margin-top:10px">'+
+      '<button class="btn secondary" onclick="clearRecords()">Padam semua rekod</button>'+
+      '</div>';
+    wrap.innerHTML=html;
+  }
+  function clearRecords(){ if(confirm('Padam semua rekod di peranti ini?')){ localStorage.removeItem('rp_records'); renderRecords(); renderDashboard([]); } }
+
+  // ====== DASHBOARD (lukisan manual canvas, offline) ======
+  function renderDashboard(arr){
+    const count=arr.length; const avgWpm=count?Math.round(arr.reduce((s,x)=>s+x.wpm,0)/count):0; const avgComp=count?Math.round(arr.reduce((s,x)=>s+(Number(x.comp)||0),0)/count):0;
+    $('avgWpm').textContent=avgWpm; $('avgComp').textContent=(count?avgComp:0)+'%'; $('countSessions').textContent=count;
+    const last=arr.slice(-10); const labels=last.map(x=>x.ts.split(',')[0]); const wpm=last.map(x=>x.wpm); const comp=last.map(x=>Number(x.comp)||0);
+    drawLine('lineWpm', labels, wpm, 'WPM'); drawBar('barComp', labels, comp, 'Kefahaman (%)');
+  }
+  function drawLine(id, labels, data, label){
+    const c=$(id); const ctx=c.getContext('2d'); const W=c.width=c.clientWidth; const H=c.height; ctx.clearRect(0,0,W,H);
+    // bingkai
+    ctx.strokeStyle = '#294b73'; ctx.lineWidth=1; ctx.strokeRect(40,10,W-50,H-30);
+    if(!data.length) return; const max=Math.max(10,...data); const x0=40, y0=H-20, x1=W-10, y1=10; const stepX=(x1-x0)/Math.max(1,data.length-1); const scaleY=(y0-y1)/max;
+    ctx.beginPath(); ctx.moveTo(x0, y0 - data[0]*scaleY); for(let i=1;i<data.length;i++){ ctx.lineTo(x0+stepX*i, y0 - data[i]*scaleY); } ctx.strokeStyle='#ffd34d'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='#ffd34d'; data.forEach((v,i)=>{ctx.beginPath();ctx.arc(x0+stepX*i, y0 - v*scaleY, 3, 0, Math.PI*2);ctx.fill()});
+    ctx.fillStyle='#b8d3f0'; ctx.font='12px system-ui'; ctx.fillText(label, 48, 24);
+  }
+  function drawBar(id, labels, data, label){
+    const c=$(id); const ctx=c.getContext('2d'); const W=c.width=c.clientWidth; const H=c.height; ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle = '#294b73'; ctx.lineWidth=1; ctx.strokeRect(40,10,W-50,H-30);
+    if(!data.length) return; const max=Math.max(10,...data); const x0=40, y0=H-20, x1=W-10, y1=10; const n=data.length; const barW=(x1-x0)/n*0.6; const gap=(x1-x0)/n*0.4; const scaleY=(y0-y1)/max;
+    ctx.fillStyle='#ffd34d'; data.forEach((v,i)=>{ const x=x0+i*(barW+gap); const h=v*scaleY; ctx.fillRect(x, y0-h, barW, h); });
+    ctx.fillStyle='#b8d3f0'; ctx.font='12px system-ui'; ctx.fillText(label, 48, 24);
+  }
+
+  // ====== EKSPORT/IMPORT ======
+  function exportCsv(){
+    const arr=JSON.parse(localStorage.getItem('rp_records')||'[]'); if(arr.length===0){alert('Tiada rekod untuk dieksport.');return}
+    const header=['Tarikh','Nama','Kelas','Jenis','Petikan','Perkataan','Masa(s)','WPM','CWPM','Kefahaman(%)'];
+    const rows=arr.map(r=>[r.ts,r.name,r.class,r.mode,r.passage,r.words,r.seconds,r.wpm,(r.cwpm??''),(r.comp??'')]);
+    const csv=[header,...rows].map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='rekod-bacaan-pantas.csv'; a.click(); URL.revokeObjectURL(url);
+  }
+  function exportJson(){ const arr=JSON.parse(localStorage.getItem('rp_records')||'[]'); const blob=new Blob([JSON.stringify(arr,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='rekod-bacaan-pantas.json'; a.click(); URL.revokeObjectURL(url); }
+  function importJsonFile(file){ const reader=new FileReader(); reader.onload=()=>{ try{ const data=JSON.parse(reader.result); if(Array.isArray(data)){ localStorage.setItem('rp_records', JSON.stringify(data)); renderRecords(); renderDashboard(data); alert('Import berjaya.'); }else{ alert('Fail tidak sah.'); } }catch(e){ alert('Ralat membaca fail.'); } }; reader.readAsText(file); }
+
+  // ====== GOOGLE SHEETS (Apps Script) ======
+  /* Contoh Apps Script (Code.gs):
+  function doPost(e){
+    const sheet=SpreadsheetApp.openById('SPREADSHEET_ID').getSheetByName('Data');
+    const body=JSON.parse(e.postData.contents);
+    const add=r=>sheet.appendRow([new Date(), r.name, r.class, r.mode, r.passage, r.words, r.seconds, r.wpm, r.cwpm||'', r.comp||'']);
+    if(Array.isArray(body.records)) body.records.forEach(add); else add(body);
+    return ContentService.createTextOutput('ok').setMimeType(ContentService.MimeType.TEXT);
+  }
+  // Deploy > New deployment > Web app > Anyone with the link
+  */
+  async function sendToSheets(){
+    const url = $('sheetsWebhook').value.trim(); if(!url){ alert('Sila tampal URL Webhook Apps Script dahulu.'); return }
+    const arr = JSON.parse(localStorage.getItem('rp_records')||'[]'); if(arr.length===0){ alert('Tiada rekod untuk dihantar.'); return }
+    try{
+      const payload = {records: arr.slice(-20)}; // hantar maksimum 20 terakhir
+      const res = await fetch(url,{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+      if(!res.ok) throw new Error('Gagal menghantar');
+      alert('Berjaya hantar rekod ke Google Sheets.');
+    }catch(err){ alert('Ralat penghantaran: '+ err.message); }
+  }
+
+  // ====== TAMBAH PETIKAN (teks sahaja) ======
+  function addPassage(){
+    const title = prompt('Tajuk petikan baharu?'); if(!title) return;
+    const text = prompt('Masukkan teks petikan (min 40 patah kata)'); if(!text) return;
+    const id = 'custom-'+Date.now(); PASSAGES.push({id,title,text,quiz:[]});
+    const opt=document.createElement('option'); opt.value=id; opt.textContent=title; $('passageSelect').appendChild(opt); $('passageSelect').value=id; renderPassage();
+    alert('Petikan ditambah. (Tiada kuiz — rekod akan disimpan tanpa penilaian kefahaman)');
+  }
+
+  // ====== WIRING ======
+  $('passageSelect').addEventListener('change',()=>{reset();renderPassage()});
+  $('mode').addEventListener('change',toggleMiscue); toggleMiscue();
+  $('startBtn').addEventListener('click',start);
+  $('finishBtn').addEventListener('click',finish);
+  $('resetBtn').addEventListener('click',reset);
+  $('btnExportCsv').addEventListener('click',exportCsv);
+  $('btnExportJson').addEventListener('click',exportJson);
+  $('importJson').addEventListener('change', (e)=>{ if(e.target.files[0]) importJsonFile(e.target.files[0]); });
+  $('btnPrint').addEventListener('click',()=>window.print());
+  $('btnSendSheets').addEventListener('click',sendToSheets);
+  $('btnAddPassage').addEventListener('click',addPassage);
+
+  // LOAD
+  init();
   </script>
 </body>
 </html>
